@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hourbot"
+version = "0.1.0"
+description = "Telegram-first hour tracking bot"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "python-telegram-bot[job-queue]>=21.0,<22.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.0,<10.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
