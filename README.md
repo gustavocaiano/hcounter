@@ -2,6 +2,10 @@
 
 Telegram-first hour tracking bot (Python 3.12+) for personal daily logging with SQLite persistence.
 
+## Bot commands
+
+See [`commands.md`](commands.md) for the full list of Telegram commands and accepted input formats.
+
 ## Local run (MVP: Telegram long polling)
 
 After a fresh clone, or after `git pull`, run:

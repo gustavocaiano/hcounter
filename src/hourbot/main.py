@@ -7,7 +7,7 @@ from decimal import Decimal
 import sqlite3
 from zoneinfo import ZoneInfo
 
-from telegram import Update
+from telegram import BotCommand, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 from .config import Settings, load_settings
@@ -24,6 +24,25 @@ from .service import (
 
 def _now_local(settings: Settings) -> datetime:
     return datetime.now(ZoneInfo(settings.tz))
+
+
+_COMMANDS_TEXT = (
+    "Commands:\n"
+    "/start - intro\n"
+    "/help - this help\n"
+    "/commands - this command list\n"
+    "/month - current month subtotal\n"
+    "getMM - selected month subtotal (example: get02)\n"
+    "\n"
+    "Send a numeric value to add/correct hours (examples: 1, 0.5, -1)."
+)
+
+_BOT_COMMANDS = [
+    BotCommand("start", "Show welcome message"),
+    BotCommand("help", "Show help and usage"),
+    BotCommand("commands", "List accepted commands"),
+    BotCommand("month", "Show current month subtotal"),
+]
 
 
 def _get_day_total(db_path: str, *, user_id: int, chat_id: int, entry_date: str) -> Decimal:
@@ -49,7 +68,7 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if update.message is None:
         return
     await update.message.reply_text(
-        "Hello! Send worked hours as a number (for example: 0, 0.5, 1, 2).\n"
+        "Hello! Send worked hours as a number (for example: 0, 0.5, 1, 2, -1).\n"
         "Use /month to see this month's total."
     )
 
@@ -58,15 +77,14 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     del context
     if update.message is None:
         return
-    await update.message.reply_text(
-        "Commands:\n"
-        "/start - intro\n"
-        "/help - this help\n"
-        "/month - current month subtotal\n"
-        "getMM - selected month subtotal (example: get02)\n"
-        "\n"
-        "Send only a numeric value to add hours (example: 1 or 0.5)."
-    )
+    await update.message.reply_text(_COMMANDS_TEXT)
+
+
+async def commands_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    del context
+    if update.message is None:
+        return
+    await update.message.reply_text(_COMMANDS_TEXT)
 
 
 async def month_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -152,15 +170,19 @@ async def daily_reminder_callback(context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id=context.job.chat_id,
         text=(
             "Reminder: how many hours did you work today? "
-            "Send a number like: 0, 0.5, 1, 2"
+            "Send a number like: 0, 0.5, 1, 2 (or -1 to correct)"
         ),
     )
+
+
+async def post_init_callback(application: Application) -> None:
+    await application.bot.set_my_commands(_BOT_COMMANDS)
 
 
 def build_application(settings: Settings) -> Application:
     init_db(settings.db_path)
 
-    app = Application.builder().token(settings.bot_token).build()
+    app = Application.builder().token(settings.bot_token).post_init(post_init_callback).build()
     app.bot_data["settings"] = settings
 
     reminder_time = time(
@@ -177,6 +199,7 @@ def build_application(settings: Settings) -> Application:
 
     app.add_handler(CommandHandler("start", start_handler))
     app.add_handler(CommandHandler("help", help_handler))
+    app.add_handler(CommandHandler("commands", commands_handler))
     app.add_handler(CommandHandler("month", month_handler))
     app.add_handler(MessageHandler(filters.Regex(r"^get(0[1-9]|1[0-2])$"), getmm_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, numeric_entry_handler))

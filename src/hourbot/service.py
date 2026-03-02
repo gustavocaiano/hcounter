@@ -8,20 +8,17 @@ import re
 
 from .db import aggregate_month_total
 
-_NUMERIC_PATTERN = re.compile(r"^\d+(?:\.\d+)?$")
+_NUMERIC_PATTERN = re.compile(r"^-?\d+(?:\.\d+)?$")
 _GETMM_PATTERN = re.compile(r"^get(0[1-9]|1[0-2])$")
 
 
 def parse_hours(raw_text: str) -> Decimal:
-    """Parse a strict non-negative decimal number from text."""
+    """Parse a strict decimal number from text."""
     normalized = raw_text.strip()
     if not _NUMERIC_PATTERN.fullmatch(normalized):
-        raise ValueError("Hours must be a non-negative decimal number")
+        raise ValueError("Hours must be a decimal number")
 
-    parsed = Decimal(normalized)
-    if parsed < 0:
-        raise ValueError("Hours must be >= 0")
-    return parsed
+    return Decimal(normalized)
 
 
 def parse_getmm(raw_text: str) -> int:

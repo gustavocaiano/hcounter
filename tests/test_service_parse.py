@@ -12,7 +12,10 @@ from hourbot.service import parse_hours
         ("1", Decimal("1")),
         ("0.5", Decimal("0.5")),
         ("12.75", Decimal("12.75")),
+        ("-1", Decimal("-1")),
+        ("-0.5", Decimal("-0.5")),
         (" 2 ", Decimal("2")),
+        (" -2 ", Decimal("-2")),
     ],
 )
 def test_parse_hours_accepts_valid_numeric_inputs(raw_text: str, expected: Decimal) -> None:
@@ -24,10 +27,10 @@ def test_parse_hours_accepts_valid_numeric_inputs(raw_text: str, expected: Decim
     [
         "",
         "   ",
-        "-1",
         "abc",
         "1,5",
         ".5",
+        "-.5",
         "1.",
         "+2",
     ],
