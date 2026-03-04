@@ -34,7 +34,7 @@ _COMMANDS_TEXT = (
     "/month - current month subtotal\n"
     "getMM - selected month subtotal (example: get02)\n"
     "\n"
-    "Send a numeric value to add/correct hours (examples: 1, 0.5, -1)."
+    "Send hours as decimal or h/m to add/correct time (examples: 1, 0.5, 2h 30m, 30m, -1)."
 )
 
 _BOT_COMMANDS = [
@@ -68,7 +68,7 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if update.message is None:
         return
     await update.message.reply_text(
-        "Hello! Send worked hours as a number (for example: 0, 0.5, 1, 2, -1).\n"
+        "Hello! Send worked hours as decimal or h/m (for example: 0, 0.5, 2h 30m, 30m, -1).\n"
         "Use /month to see this month's total."
     )
 
@@ -100,7 +100,7 @@ async def month_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         today=now_local.date(),
     )
     await update.message.reply_text(
-        f"Month subtotal: {format_hours_total(month_total)}h"
+        f"Month subtotal: {format_hours_total(month_total)}"
     )
 
 
@@ -161,7 +161,7 @@ async def getmm_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         today=_now_local(settings).date(),
     )
     await update.message.reply_text(
-        f"Month {month:02d} subtotal: {format_hours_total(month_total)}h"
+        f"Month {month:02d} subtotal: {format_hours_total(month_total)}"
     )
 
 
@@ -170,7 +170,7 @@ async def daily_reminder_callback(context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id=context.job.chat_id,
         text=(
             "Reminder: how many hours did you work today? "
-            "Send a number like: 0, 0.5, 1, 2 (or -1 to correct)"
+            "Send hours like: 0, 0.5, 2h 30m, 30m (or -1 to correct)"
         ),
     )
 

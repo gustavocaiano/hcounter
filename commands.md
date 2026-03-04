@@ -20,12 +20,13 @@ The bot also registers these slash commands with Telegram (`setMyCommands`), so 
 
 ## Hour entry input
 
-You can send a numeric value to log worked hours for today.
+You can send worked hours either as decimal hours or with `h`/`m` suffixes.
 
-- Accepted examples: `0`, `1`, `0.5`, `12.75`, `-1`
+- Accepted examples: `0`, `1`, `0.5`, `12.75`, `2h`, `2h 30m`, `30m`, `-1`
 - Rules:
   - negative values are allowed for corrections (for example: `-1`)
   - must use `.` as decimal separator
+  - with suffixes, `h` means hours and `m` means minutes
   - `+` prefix is not accepted (for example `+2`)
   - no shorthand decimals (for example `.5` is not accepted)
 
